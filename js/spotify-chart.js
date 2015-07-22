@@ -13,19 +13,48 @@ $(function() {
 });
 
 function extractTop20Tracks(tracks) {
-  // your code here
+  return tracks.slice(0, 20);
 }
 
 function extractNumberOfStreams(tracks) {
-  // your code here
+  var streams = [];
+  var track;
+
+  for (var i = 0; i < tracks.length; i++) {
+    track = tracks[i]
+    streams.push(track.num_streams);
+  };
+
+  return streams;
 }
 
 function extractNames(tracks) {
-  // your code here
+  var names = []
+  var track;
+
+  for (var i = 0; i < tracks.length; i++) {
+    track = tracks[i]
+    names.push(track.track_name);
+  };
+
+  return names;
 }
 
 function chartData(labels, inputData) {
   // your code here
+  return {
+    labels: labels,
+    datasets: [
+      {
+        label: dataSetProperties.label,
+        fillColor: dataSetProperties.fillColor,
+        strokeColor: dataSetProperties.strokeColor,
+        highlightFill: dataSetProperties.highlightFill,
+        highlightStroke: dataSetProperties.highlightStroke,
+        data: inputData
+      }
+    ]
+  }
 
   // use the dataSetProperties variable defined above if it helps
 }
@@ -36,6 +65,16 @@ function getSpotifyTracks(callback){
   // parameter the data it received
 
   // use the url variable defined above if it helps
+  $.ajax({
+    type: 'GET',
+    url: url,
+    jsonpCallback: 'jsonCallback',
+    contentType: 'application/json',
+    dataType: 'jsonp',
+    success: function(json) {
+      callback(json);
+    }
+  });
 }
 
 function success(parsedJSON) {
@@ -49,4 +88,11 @@ function success(parsedJSON) {
   //  5. make a variable `ctx` and select the canvas with the id of spotify-chart
   //     * also make sure to specify 2d context
   //  6. make a new bar chart!
+  var top20Tracks = extractTop20Tracks(parsedJSON.tracks);
+  var streams = extractNumberOfStreams(top20Tracks);
+  var names = extractNames(top20Tracks);
+  var data = chartData(names, streams);
+  var ctx = document.getElementById('spotify-chart').getContext('2d');
+  var barChart = new Chart(ctx).Bar(data);
+
 }
